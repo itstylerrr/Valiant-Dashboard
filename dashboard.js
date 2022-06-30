@@ -5,6 +5,7 @@ function init(client) {
     const mongoose = require("mongoose");
     const guildSchema = require("./Database/Schemas/Guild");
     let langsSettings = {};
+    let prefixData = {};
 
     const totalUsers = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0)
     const usersWord = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0) > 1
@@ -19,12 +20,6 @@ function init(client) {
     }).catch((err) => {
         console.log(`Mongo Error: ${err}`);
     });
-
-    guildSchema.create(
-        {
-            id: "971534964527087726"
-        }
-    );
 
     /* --- DASHBOARD --- */
 (async () => {
@@ -124,21 +119,21 @@ function init(client) {
                         optionId: 'lang',
                         optionName: "Language",
                         optionDescription: "Change bot's language easily",
-                        optionType: DBD.formTypes.select({ "Polish": 'pl', "English": 'en', "French": 'fr' }),
+                        optionType: DBD.formTypes.select({ "English": 'en', "Polish": 'pl', "French": 'fr' }),
                         getActualSet: async ({ guild }) => {
-                            langsSettings[guild.id] || null;
-                            return;
+                            const data = await guildSchema.findOne({id: guild.id});
+                            langsSettings[guild.id] = data.test;
+                            return langsSettings[guild.id] || null;
                         },
                         setNew: async ({ guild, newData }) => {
+                            
                             langsSettings[guild.id] = newData;
-                            guildSchema.findOneAndUpdate({
+                            await guildSchema.findOneAndUpdate({
                                 id: guild.id
                             },
                             {
                                 test: newData,
-                            }).then(
-                                console.log(`Updated test to ${newData}`)
-                            );
+                            });
                             return;
                         }
                     },
@@ -149,14 +144,18 @@ function init(client) {
                         optionDescription: "Set bot prefix.",
                         optionType: DBD.formTypes.input('Prefix', 1, 4, false, false), // reqired false (if empty reset to default)
                         getActualSet: async ({guild}) => {
-                            return prefixData[guild.id] || '!';
+                            const data = await guildSchema.findOne({id: guild.id});
+                            return data.prefix;
                         },
                         setNew: async ({guild,newData}) => {
-                            await guildSchema.findOne({
-                                id: guild.id,
-                            }, async (err, data) => {
-                                if (err) throw err;
-                            })
+                            await guildSchema.findOneAndUpdate(
+                                {
+                                    id: guild.id
+                                },
+                                {
+                                    prefix: newData
+                                }
+                            );
                             prefixData[guild.id] = newData || '!';
                             return;
                         }
