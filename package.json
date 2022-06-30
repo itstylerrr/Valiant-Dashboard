@@ -1,0 +1,25 @@
+{
+  "name": "valiant-dashboard",
+  "version": "0.5.0",
+  "description": "The test dashboard for the Valiant Discord bot to figure out how this package works.",
+  "main": "valiant.js",
+  "scripts": {
+    "test": "ndoemon -e js valiant.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itstylerrr/Valiant.git"
+  },
+  "author": "Tyler",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/itstylerrr/Valiant/issues"
+  },
+  "homepage": "https://github.com/itstylerrr/Valiant#readme",
+  "dependencies": {
+    "dbd-dark-dashboard": "^1.6.58",
+    "discord-dashboard": "^2.3.40",
+    "discord.js": "^13.8.1",
+    "mongoose": "^6.4.1"
+  }
+}
