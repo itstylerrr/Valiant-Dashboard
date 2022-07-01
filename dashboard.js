@@ -365,6 +365,69 @@ function init(client) {
                             }
                         },
                     ]
+                },
+
+                {
+                    categoryId: "xpconfig",
+                    categoryName: "XP Settings",
+                    categoryDescription: "Configure the XP settings.",
+                    categoryOptionsList: [
+                        {
+                            optionId: 'switch_xpToggle',
+                            optionName: "Toggle XP System",
+                            optionDescription: "Toggle the XP system on and off.",
+                            optionType: DBD.formTypes.switch(false),
+                            getActualSet: async ({ guild }) => {
+                                const data = await guildSchema.findOne({  id: guild.id });
+                                const SAVED_STATE = data.addons.xp.enabled;
+                                const DEFAULT_STATE = false;
+                                return (SAVED_STATE == null || SAVED_STATE == undefined) ? DEFAULT_STATE : SAVED_STATE;
+                            },
+                            setNew: async ({ guild, newData }) => {
+                                const data = await guildSchema.findOne({ id: guild.id });
+                                data.addons.xp.enabled = newData;
+                                await data.markModified("addons.xp");
+                                await data.save();
+                                return;
+                            },
+                        },
+
+                        {
+                            optionId: 'level_channel',
+                            optionName: "Rank Up Channel",
+                            optionDescription: "Select the channel where rank up messages should be sent to. You do not need to select a channel",
+                            optionType: DBD.formTypes.channelsSelect(false, ['GUILD_TEXT']),
+                            getActualSet: async ({guild}) => {
+                                const data = await guildSchema.findOne({  id: guild.id });
+                                return data.addons.xp.channel;
+                            },
+                            setNew: async ({guild,newData}) => {
+                                const data = await guildSchema.findOne({  id: guild.id });
+                                data.addons.xp.channel = newData;
+                                await data.markModified("addons.xp");
+                                await data.save();
+                                return;
+                            }
+                        },
+
+                        {
+                            optionId: 'background',
+                            optionName: "Background",
+                            optionDescription: "Change the background for the rank up car.",
+                            optionType: DBD.formTypes.input('Image URL'), // reqired false (if empty reset to default)
+                            getActualSet: async ({guild}) => {
+                                const data = await guildSchema.findOne({ id: guild.id });
+                                return data.addons.xp.background;
+                            },
+                            setNew: async ({guild,newData}) => {
+                                const data = await guildSchema.findOne({  id: guild.id });
+                                data.addons.xp.background = newData || null;
+                                await data.markModified("addons.xp");
+                                await data.save();
+                                return;
+                            }
+                        },
+                    ]
                 }
             ]
         });
