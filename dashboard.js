@@ -4,8 +4,6 @@ function init(client) {
     const DBD = require("discord-dashboard");
     const mongoose = require("mongoose");
     const guildSchema = require("./Database/Schemas/Guild");
-    let langsSettings = {};
-    let prefixData = {};
 
     const totalUsers = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0)
     const usersWord = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0) > 1
@@ -122,12 +120,9 @@ function init(client) {
                             optionType: DBD.formTypes.select({ "English": 'en', "Polish": 'pl', "French": 'fr' }),
                             getActualSet: async ({ guild }) => {
                                 const data = await guildSchema.findOne({ id: guild.id });
-                                langsSettings[guild.id] = data.test;
-                                return langsSettings[guild.id] || null;
+                                return data.test || null;
                             },
                             setNew: async ({ guild, newData }) => {
-
-                                langsSettings[guild.id] = newData;
                                 await guildSchema.findOneAndUpdate({
                                     id: guild.id
                                 },
@@ -156,7 +151,6 @@ function init(client) {
                                         prefix: newData
                                     }
                                 );
-                                prefixData[guild.id] = newData || '!';
                                 return;
                             }
                         },
@@ -210,6 +204,23 @@ function init(client) {
                             }
                         },
                         {
+                            optionId: 'welcome_role',
+                            optionName: "Welcome Role",
+                            optionDescription: "Select role given to user on guild join.",
+                            optionType: DBD.formTypes.rolesSelect(false),
+                            getActualSet: async ({guild}) => {
+                                const data = await guildSchema.findOne({  id: guild.id });
+                                return data.addons.welcome.role;  
+                            },
+                            setNew: async ({guild,newData}) => {
+                                const data = await guildSchema.findOne({  id: guild.id });
+                                data.addons.welcome.role = newData;
+                                await data.markModified("addons.welcome");
+                                await data.save();
+                                return;
+                            }
+                        },
+                        {
                             optionId: 'welcome_embed',
                             optionName: "Welcome Embed",
                             optionDescription: "Build your own Welcome Embed!",
@@ -219,7 +230,7 @@ function init(client) {
                                 defaultJson: {
                                     content: "Do you want to ping the user that just joined? Try puting {user.ping} here!",
                                     embed: {
-                                        timestamp: new Date().toISOString(),
+                                        timestamp: null,
                                         url: "https://discord.com",
                                         description: "There was a boar, everyone liked a boar. One day the boar ate my dinner and escaped through the chimney. I haven't seen a boar since then.",
                                         author: {
