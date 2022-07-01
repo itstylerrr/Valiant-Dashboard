@@ -13,6 +13,7 @@ module.exports = mongoose.model("Guild", new mongoose.Schema({
             channel:  null, // ID for the channel to send messages to
             message: null, // Custom message
             image: false, // Check if image is enabled
+            json: null,
             embed: false, // Check if embed is enabled
             role: null, // Role to give the user once they join the guild.
         },
@@ -21,6 +22,7 @@ module.exports = mongoose.model("Guild", new mongoose.Schema({
             channel:  null, // ID for channel to send messages to
             message: null, // Custom message
             image: false, // Check if image is enabled
+            json: null,
             embed: false // Check if embed is enabled
         },
         settings: {
