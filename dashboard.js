@@ -271,6 +271,99 @@ function init(client) {
                                 return;
                             }
                         },
+                        
+                        {
+                            optionType: 'spacer',
+                            title: 'Goodbye Message Configuration',
+                            description: 'This is the section where you can edit all of the goobye message options and embeds. Continue scrolling to get to the goodbye messages area.'
+                        },
+                        {
+                            optionId: 'switch_goodbyeToggle',
+                            optionName: "Toggle Goodbye Message",
+                            optionDescription: "Toggle the goodbye system on and off.",
+                            optionType: DBD.formTypes.switch(false),
+                            getActualSet: async ({ guild }) => {
+                                const data = await guildSchema.findOne({  id: guild.id });
+                                const SAVED_STATE = data.addons.goodbye.enabled;
+                                const DEFAULT_STATE = false;
+                                return (SAVED_STATE == null || SAVED_STATE == undefined) ? DEFAULT_STATE : SAVED_STATE;
+                            },
+                            setNew: async ({ guild, newData }) => {
+                                const data = await guildSchema.findOne({ id: guild.id });
+                                data.addons.goodbye.enabled = newData;
+                                await data.markModified("addons.goodbye");
+                                await data.save();
+                                return;
+                            },
+                        },
+                        {
+                            optionId: 'goodbye_channel',
+                            optionName: "Goodbye Channel",
+                            optionDescription: "Select the channel where goodbye messaegs should be sent.",
+                            optionType: DBD.formTypes.channelsSelect(false, ['GUILD_TEXT']),
+                            getActualSet: async ({guild}) => {
+                                const data = await guildSchema.findOne({  id: guild.id });
+                                return data.addons.goodbye.channel;
+                            },
+                            setNew: async ({guild,newData}) => {
+                                const data = await guildSchema.findOne({  id: guild.id });
+                                data.addons.goodbye.channel = newData;
+                                await data.markModified("addons.goodbye");
+                                await data.save();
+                                return;
+                            }
+                        },
+                        {
+                            optionId: 'goodbye_embed',
+                            optionName: "Goodbye Embed",
+                            optionDescription: "Build your own Goodbye Embed!",
+                            optionType: DBD.formTypes.embedBuilder({
+                                username: client.user.username,
+                                avatarURL: client.user.avatarURL({ dynamic: true }),
+                                defaultJson: {
+                                    content: "Do you want to ping the user that just joined? Try puting {user.ping} here!",
+                                    embed: {
+                                        timestamp: null,
+                                        url: "https://discord.com",
+                                        description: "There was a boar, everyone liked a boar. One day the boar ate my dinner and escaped through the chimney. I haven't seen a boar since then.",
+                                        author: {
+                                            name: "Goodbye {user.username}",
+                                            url: "https://assistantscenter.com",
+                                            icon_url: "https://media.discordapp.net/attachments/911644960590270484/934513385402413076/ac_fixed.png"
+                                        },
+                                        image: {
+                                            url: "https://unsplash.it/380/200"
+                                        },
+                                        footer: {
+                                            text: "Crated with Discord-Dashboard",
+                                            icon_url: "https://cdn.discordapp.com/emojis/870635912437047336.png"
+                                        },
+                                        fields: [
+                                            {
+                                                name: "Hello",
+                                                value: "Whats up dog? <:ac_love:806492057996230676>"
+                                            },
+                                            {
+                                                name: "Do you know that",
+                                                value: "You can use custom emojis there, even from server where bot isn't :Kekwlaugh:",
+                                                inline: false
+                                            },
+                                        ]
+                                    }
+                                }
+                            }),
+                            getActualSet: async ({ guild }) => {
+                                const data = await guildSchema.findOne({ id: guild.id });
+                                return data.addons.goodbye.json || null;
+                            },
+                            setNew: async ({ guild, newData }) => {
+                                const data = await guildSchema.findOne({ id: guild.id });
+                                data.addons.goodbye.json = newData || null;
+                                await data.markModified("addons.goodbye");
+                                await data.save();
+                                return;
+                            }
+                        },
                     ]
                 }
             ]
